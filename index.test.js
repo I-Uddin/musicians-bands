@@ -17,6 +17,10 @@ describe("Band and Musician Models", () => {
     await Musician.sync({ force: true });
   });
 
+  afterAll(async () => {
+    await sequelize.drop( {force: true} );
+  });
+
   test("can create a Band", async () => {
     // TODO - test creating a band
     let band1 = await Band.create({
@@ -57,8 +61,24 @@ describe("Band and Musician Models", () => {
 
   test("can create a Musician", async () => {
     // TODO - test creating a musician
-    const musician1 = await Musician.create({ name: "Andy", instrument: "PC" });
+    let musician1 = await Musician.create({ name: "Andy", instrument: "PC" });
     expect(musician1.name).toBe("Andy");
     expect(musician1.instrument).toBe("PC");
+  });
+
+  test("can find all Musician's in a Band", async () => {
+    let band1 = await Band.create({
+      name: "Big Chungus",
+      genre: "Memes",
+      showCount: 6,
+    });
+    let musician1 = await Musician.create({ name: "Andy", instrument: "PC" });
+    let musician2 = await Musician.create({ name: "Steve", instrument: "Gary" });
+    await band1.addMusician(musician1);
+    await band1.addMusician(musician2);
+    let foundBand = await band1.getMusicians();
+    musician1 = await Musician.findByPk(1);
+    musician2 = await Musician.findByPk(2);
+    expect(foundBand).toEqual([musician1,musician2]);
   });
 });
