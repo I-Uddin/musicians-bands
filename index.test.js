@@ -1,5 +1,5 @@
 const { sequelize } = require("./db");
-const { Band, Musician } = require("./index");
+const { Band, Musician, Song } = require("./index");
 
 describe("Band and Musician Models", () => {
   /**
@@ -15,6 +15,7 @@ describe("Band and Musician Models", () => {
   afterEach(async () => {
     await Band.sync({ force: true });
     await Musician.sync({ force: true });
+    await Song.sync( {force: true} );
   });
 
   afterAll(async () => {
@@ -54,7 +55,7 @@ describe("Band and Musician Models", () => {
     });
     let found = await Band.findByPk(1);
     expect(found.name).toBe("Big Chungus");
-    let updated = band1.update({name: "Lil Chungus"});
+    let updated = await band1.update({name: "Lil Chungus"});
     found = await Band.findByPk(1);
     expect(found.name).toBe("Lil Chungus");
   });
@@ -81,4 +82,51 @@ describe("Band and Musician Models", () => {
     musician2 = await Musician.findByPk(2);
     expect(foundBand).toEqual([musician1,musician2]);
   });
+
+  test("Song can have many bands", async () => {
+    let band1 = await Band.create({
+      name: "Big Chungus",
+      genre: "Memes",
+      showCount: 6,
+    });
+    let band2 = await Band.create({
+      name: "Duo",
+      genre: "Something",
+      showCount: 2,
+    });
+    let song1 = await Song.create({
+      title: "Chicken",
+      year: 1325,
+    });
+    await song1.addBand(band1);
+    await song1.addBand(band2);
+    let foundBands = await song1.getBands();
+    band1 = await Band.findByPk(1);
+    band2 = await Band.findByPk(2);
+    expect(foundBands).toEqual([band1,band2]);
+  });
+
+  test("Band can have many songs", async () => {
+    let song1 = await Song.create({
+      title: "Chicken",
+      year: 1325,
+    });
+    let song2 = await Song.create({
+      title: "Dance",
+      year: 1669,
+    });
+    let band1 = await Band.create({
+      name: "Big Chungus",
+      genre: "Memes",
+      showCount: 6,
+    });
+    await band1.addSong(song1);
+    await band1.addSong(song2);
+    let foundSongs = await band1.getSongs();
+    song1 = await Song.findByPk(1);
+    song2 = await Song.findByPk(2);
+    expect(foundSongs).toEqual([song1,song2]);
+  });
+
+
 });
