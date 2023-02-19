@@ -3,8 +3,9 @@ const {Musician} = require('./Musician')
 const {Song} = require('./Song')
 
 Band.hasMany(Musician);
-Band.hasMany(Song);
-Song.hasMany(Band);
+
+Band.belongsToMany(Song, {through: 'bandSongs'});
+Song.belongsToMany(Band, {through: 'bandSongs'});
 
 module.exports = {
     Band,
