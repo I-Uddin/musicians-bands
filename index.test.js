@@ -215,6 +215,57 @@ describe("Band and Musician Models", () => {
   //   expect(foundSongBands[0].name).toBe("Big Chungus");
   //   expect(foundSongBands[0].genre).toBe("Memes");
   // });
+
+  it("implement eager loading into the Musicians-Bands", async () => {
+    // 2. Create test data and associate the models as in previous tests.
+    let musician1 = await Musician.create({ name: "Andy", instrument: "PC" });
+    let musician2 = await Musician.create({
+      name: "Steve",
+      instrument: "Gary",
+    });
+    let band1 = await Band.create({
+      name: "Big Chungus",
+      genre: "Memes",
+      showCount: 6,
+    });
+    let band2 = await Band.create({
+      name: "Duo",
+      genre: "Something",
+      showCount: 2,
+    });
+    // Create at least 2 songs
+    let song1 = await Song.create({
+      title: "Chicken",
+      year: 1325,
+    });
+    let song2 = await Song.create({
+      title: "Dance",
+      year: 1669,
+    });
+    await band1.addMusician(musician1);
+    await band1.addMusician(musician2);
+    await band2.addMusician(musician1);
+    // 3. Find all the Bands
+    // 4. In the Band.findAll() call, include the Musician model.
+    foundBandsMusicians = await Band.findAll({
+      include: [{ model: Musician, as: "musicians" }],
+    });
+    // 5. Do the same again, but this time include the Song model.
+    foundBandSongs = await Band.findAll({
+      include: [{ model: Song, as: "songs" }],
+    });
+    foundBandMusiciansSongs = await Band.findAll({
+      include: [
+        { model: Musician, as: "musicians" },
+        { model: Song, as: "songs" },
+      ],
+    });
+    // console.log(foundBandsMusicians);
+    // console.log(foundBandSongs);
+    // console.log(foundBandMusiciansSongs[1].musicians[0]);
+    // 6. Test the output
+    expect(foundBandMusiciansSongs[1].musicians[0].name).toBe("Andy");
+  });
 });
 
 // [
